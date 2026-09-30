@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PromptStudio AI — Dribbble Edition</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .dribbble-pink {
+      background-color: #ea4c89;
+    }
+    .dribbble-pink:hover {
+      background-color: #df3f7f;
+    }
+    .text-dribbble-pink {
+      color: #ea4c89;
+    }
+    .shot-card:hover .shot-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .shot-card:hover img {
+      transform: scale(1.04);
+    }
+  </style>
+</head>
+<body class="bg-[#f8f8fa] text-[#0d0c22] antialiased min-h-screen">
+
+  <!-- 1. Dribbble-style Sticky Header -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#f3f3f4] px-6 lg:px-12 py-3.5 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-6">
+      
+      <!-- Brand & Mode Switch -->
+      <div class="flex items-center gap-8">
+        <div class="flex items-center gap-2.5 cursor-pointer">
+          <div class="w-10 h-10 rounded-full dribbble-pink flex items-center justify-center text-white font-black text-xl shadow-sm shadow-pink-200">
+            P
+          </div>
+          <div>
+            <span class="font-bold text-lg tracking-tight text-[#0d0c22]">PromptStudio</span>
+            <span class="text-[11px] font-semibold tracking-wider uppercase ml-1 px-1.5 py-0.5 rounded bg-pink-50 text-dribbble-pink">Pro</span>
+          </div>
+        </div>
+
+        <!-- Center Tabs (Dribbble Nav style) -->
+        <nav class="hidden md:flex items-center gap-1 bg-[#f3f3f4] p-1 rounded-full text-sm font-semibold">
+          <button id="nav-shots" onclick="switchView('shots')" class="px-5 py-2 rounded-full bg-white text-[#0d0c22] shadow-sm transition-all duration-200">
+            ✨ 灵感流 (Shots)
+          </button>
+          <button id="nav-studio" onclick="switchView('studio')" class="px-5 py-2 rounded-full text-[#6e6d7a] hover:text-[#0d0c22] transition-all duration-200">
+            🧩 正向拼装台
+          </button>
+          <button id="nav-lab" onclick="switchView('lab')" class="px-5 py-2 rounded-full text-[#6e6d7a] hover:text-[#0d0c22] transition-all duration-200">
+            🔍 双图反推实验室
+          </button>
+        </nav>
+      </div>
+
+      <!-- Right Controls: Model DNA Badge & CTA -->
+      <div class="flex items-center gap-3">
+        <!-- Model DNA Pill -->
+        <div class="hidden sm:flex items-center gap-2 bg-[#f3f3f4] hover:bg-[#e7e7e9] transition-colors py-1.5 px-3.5 rounded-full text-xs font-semibold cursor-pointer border border-transparent hover:border-neutral-300">
+          <div class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-700 flex items-center justify-center text-[10px] font-bold">
+            👤
+          </div>
+          <span class="text-[#0d0c22]">模特：<strong>赵凤丽</strong></span>
+          <span class="text-[#6e6d7a] font-normal">(168/65kg 沙漏)</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+
+        <!-- Create Button -->
+        <button onclick="switchView('studio')" class="dribbble-pink text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm shadow-pink-200 hover:shadow-md transition-all">
+          + 新建拼装
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- 2. Main Content Area -->
+  <main class="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+
+    <!-- ==================== VIEW 1: Dribbble Shots Grid (灵感瀑布流) ==================== -->
+    <section id="view-shots" class="block space-y-8">
+      
+      <!-- Sub-Nav Pill Filters -->
+      <div class="flex items-center justify-between gap-4 flex-wrap border-b border-[#f3f3f4] pb-6">
+        <div class="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+          <button class="px-4 py-2 rounded-full bg-[#0d0c22] text-white text-xs font-semibold shadow-sm">全部 (All)</button>
+          <button class="px-4 py-2 rounded-full bg-white hover:bg-[#f3f3f4] text-[#6e6d7a] hover:text-[#0d0c22] text-xs font-semibold transition-colors border border-[#f3f3f4]">🪞 镜自拍复刻</button>
+          <button class="px-4 py-2 rounded-full bg-white hover:bg-[#f3f3f4] text-[#6e6d7a] hover:text-[#0d0c22] text-xs font-semibold transition-colors border border-[#f3f3f4]">💼 日常通勤</button>
+          <button class="px-4 py-2 rounded-full bg-white hover:bg-[#f3f3f4] text-[#6e6d7a] hover:text-[#0d0c22] text-xs font-semibold transition-colors border border-[#f3f3f4]">🍷 浪漫约会</button>
+          <button class="px-4 py-2 rounded-full bg-white hover:bg-[#f3f3f4] text-[#6e6d7a] hover:text-[#0d0c22] text-xs font-semibold transition-colors border border-[#f3f3f4]">✨ 轻熟性感</button>
+          <button class="px-4 py-2 rounded-full bg-white hover:bg-[#f3f3f4] text-[#6e6d7a] hover:text-[#0d0c22] text-xs font-semibold transition-colors border border-[#f3f3f4]">🌈 多巴胺活力</button>
+          <button class="px-4 py-2 rounded-full bg-white hover:bg-[#f3f3f4] text-[#6e6d7a] hover:text-[#0d0c22] text-xs font-semibold transition-colors border border-[#f3f3f4]">📱 手机随手拍真实感</button>
+        </div>
+
+        <!-- Filter / Sort Dropdown -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-medium text-[#6e6d7a]">排序:</span>
+          <select class="bg-white border border-[#e7e7e9] text-xs font-semibold text-[#0d0c22] rounded-full px-3.5 py-1.5 focus:outline-none focus:border-neutral-400 cursor-pointer">
+            <option>最受好评 (Popular)</option>
+            <option>最新沉淀 (Newest)</option>
+            <option>复刻最多 (Most Used)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- The Dribbble Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <!-- Card 1: 镜自拍复刻 -->
+        <div class="shot-card group bg-white rounded-2xl overflow-hidden border border-[#f3f3f4] hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col">
+          <div class="relative aspect-[4/3] bg-gradient-to-br from-neutral-800 to-neutral-900 overflow-hidden cursor-pointer">
+            <!-- Simulated Visual Placeholder -->
+            <div class="w-full h-full flex flex-col justify-end p-6 text-white bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-700 via-neutral-900 to-black">
+              <span class="inline-block px-2.5 py-1 rounded-md bg-white/20 backdrop-blur-md text-[11px] font-bold tracking-wider uppercase mb-2 w-max">
+                镜自拍 · 手机遮脸
+              </span>
+              <h3 class="font-bold text-lg text-white">酒店大堂 · 镜前自拍全身像</h3>
+              <p class="text-xs text-neutral-300 mt-1 line-clamp-1">黑色修身连衣裙 · 20D微透黑丝 · 8cm尖头细跟</p>
+            </div>
+            <!-- Dribbble Hover Action Overlay -->
+            <div class="shot-overlay absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 transition-all duration-300 flex flex-col justify-between p-5">
+              <div class="flex justify-end">
+                <span class="p-2 bg-white/20 hover:bg-white text-white hover:text-black rounded-full transition-colors cursor-pointer text-xs">
+                  ❤️ 1.4k
+                </span>
+              </div>
+              <div class="space-y-2">
+                <button onclick="copyMockPrompt(1)" class="w-full py-2.5 bg-white text-black font-semibold text-xs rounded-full hover:bg-neutral-100 transition shadow-lg flex items-center justify-center gap-2">
+                  📋 复制完整生图 Prompt
+                </button>
+                <button onclick="loadToStudio('hotel')" class="w-full py-2 bg-white/20 text-white font-medium text-xs rounded-full hover:bg-white/30 backdrop-blur-md transition">
+                  ⚡ 导入拼装台继续微调
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-pink-100 text-dribbble-pink flex items-center justify-center font-bold text-xs">
+                丽
+              </div>
+              <span class="text-xs font-semibold text-[#0d0c22]">赵凤丽 · 经典母版</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-[#6e6d7a] font-medium">
+              <span>👁️ 4.8k</span>
+              <span>💾 920次</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: 初秋通勤大衣 -->
+        <div class="shot-card group bg-white rounded-2xl overflow-hidden border border-[#f3f3f4] hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col">
+          <div class="relative aspect-[4/3] bg-gradient-to-br from-amber-900/80 to-stone-900 overflow-hidden cursor-pointer">
+            <div class="w-full h-full flex flex-col justify-end p-6 text-white bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-800/40 via-stone-900 to-black">
+              <span class="inline-block px-2.5 py-1 rounded-md bg-amber-500/30 backdrop-blur-md text-amber-200 text-[11px] font-bold tracking-wider uppercase mb-2 w-max">
+                日常通勤 · 羊绒质感
+              </span>
+              <h3 class="font-bold text-lg text-white">燕麦色双排扣风衣与法式叠穿</h3>
+              <p class="text-xs text-neutral-300 mt-1 line-clamp-1">燕麦色风衣 · 羊毛高腰短裙 · 尖头细高跟</p>
+            </div>
+            <div class="shot-overlay absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 transition-all duration-300 flex flex-col justify-between p-5">
+              <div class="flex justify-end">
+                <span class="p-2 bg-white/20 hover:bg-white text-white hover:text-black rounded-full transition-colors cursor-pointer text-xs">
+                  ❤️ 2.8k
+                </span>
+              </div>
+              <div class="space-y-2">
+                <button onclick="copyMockPrompt(2)" class="w-full py-2.5 bg-white text-black font-semibold text-xs rounded-full hover:bg-neutral-100 transition shadow-lg flex items-center justify-center gap-2">
+                  📋 复制完整生图 Prompt
+                </button>
+                <button onclick="loadToStudio('coat')" class="w-full py-2 bg-white/20 text-white font-medium text-xs rounded-full hover:bg-white/30 backdrop-blur-md transition">
+                  ⚡ 导入拼装台继续微调
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-pink-100 text-dribbble-pink flex items-center justify-center font-bold text-xs">
+                丽
+              </div>
+              <span class="text-xs font-semibold text-[#0d0c22]">赵凤丽 · 秋冬穿搭</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-[#6e6d7a] font-medium">
+              <span>👁️ 6.2k</span>
+              <span>💾 1.4k次</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: 浪漫约会丝缎 -->
+        <div class="shot-card group bg-white rounded-2xl overflow-hidden border border-[#f3f3f4] hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col">
+          <div class="relative aspect-[4/3] bg-gradient-to-br from-rose-950 to-neutral-900 overflow-hidden cursor-pointer">
+            <div class="w-full h-full flex flex-col justify-end p-6 text-white bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-rose-900/30 via-neutral-900 to-black">
+              <span class="inline-block px-2.5 py-1 rounded-md bg-rose-500/30 backdrop-blur-md text-rose-200 text-[11px] font-bold tracking-wider uppercase mb-2 w-max">
+                约会浪漫 · 真丝光泽
+              </span>
+              <h3 class="font-bold text-lg text-white">香槟金法式真丝衬衫与包臀裙</h3>
+              <p class="text-xs text-neutral-300 mt-1 line-clamp-1">真丝垂坠 · 锁骨微露 · 15D薄透黑丝</p>
+            </div>
+            <div class="shot-overlay absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 transition-all duration-300 flex flex-col justify-between p-5">
+              <div class="flex justify-end">
+                <span class="p-2 bg-white/20 hover:bg-white text-white hover:text-black rounded-full transition-colors cursor-pointer text-xs">
+                  ❤️ 3.1k
+                </span>
+              </div>
+              <div class="space-y-2">
+                <button onclick="copyMockPrompt(3)" class="w-full py-2.5 bg-white text-black font-semibold text-xs rounded-full hover:bg-neutral-100 transition shadow-lg flex items-center justify-center gap-2">
+                  📋 复制完整生图 Prompt
+                </button>
+                <button onclick="loadToStudio('silk')" class="w-full py-2 bg-white/20 text-white font-medium text-xs rounded-full hover:bg-white/30 backdrop-blur-md transition">
+                  ⚡ 导入拼装台继续微调
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-pink-100 text-dribbble-pink flex items-center justify-center font-bold text-xs">
+                丽
+              </div>
+              <span class="text-xs font-semibold text-[#0d0c22]">赵凤丽 · 约会系列</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-[#6e6d7a] font-medium">
+              <span>👁️ 8.9k</span>
+              <span>💾 2.1k次</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: 结构化拼装台 (Prompt Studio) ==================== -->
+    <section id="view-studio" class="hidden space-y-8">
+      
+      <!-- Studio Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#f3f3f4] pb-6">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-[#0d0c22]">正向结构化提示词拼装台</h2>
+          <p class="text-xs text-[#6e6d7a] mt-1">基于六层提示词 Schema 与赵凤丽身材母版，模块化组合最稳健的高保真生图指令。</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="resetStudio()" class="px-4 py-2 rounded-full bg-white border border-[#e7e7e9] text-xs font-semibold text-[#6e6d7a] hover:text-black transition">
+            重置配置
+          </button>
+          <button onclick="copyGeneratedPrompt()" class="px-5 py-2 rounded-full dribbble-pink text-white text-xs font-semibold shadow-sm transition">
+            复制当前 Prompt
+          </button>
+        </div>
+      </div>
+
+      <!-- Studio Layout: Left Controls + Right Live Preview -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left 7 Cols: Controls Drawer -->
+        <div class="lg:col-span-7 space-y-6">
+
+          <!-- Layer 1: 模特母版与核心约束 (Layer 1 & 2) -->
+          <div class="bg-white rounded-2xl p-6 border border-[#f3f3f4] shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-pink-500">Layer 1 & 2 · 模特身材母版</span>
+              <span class="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">已锁定</span>
+            </div>
+            <div class="bg-[#f8f8fa] p-4 rounded-xl border border-neutral-100 flex items-start gap-3">
+              <div class="text-xl">👩‍🦰</div>
+              <div class="space-y-1 text-xs">
+                <div class="font-bold text-[#0d0c22]">赵凤丽 (AI 模特)</div>
+                <div class="text-[#6e6d7a]">168cm / 65kg · 丰满型沙漏身材 · 自然适中 C 杯 · 腰部紧实平坦 · 臀部饱满健康 · 大腿匀称肉感</div>
+                <div class="text-[11px] text-neutral-400 mt-1">全局强制负向：禁止拉腿、禁止削减臀胯、禁止漫画化细腰、禁止过度磨皮。</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Layer 2: 穿搭组合 (Outfit Generator) -->
+          <div class="bg-white rounded-2xl p-6 border border-[#f3f3f4] shadow-sm space-y-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-pink-500">Layer 3 · 穿搭细节定制</span>
+              <span class="text-xs text-[#6e6d7a]">支持 outfit-prompt-generator 预设</span>
+            </div>
+
+            <!-- Upper -->
+            <div class="space-y-2">
+              <label class="text-xs font-semibold text-[#0d0c22]">上衣 (Upper Garment)</label>
+              <input id="input-upper" type="text" value="修身剪裁黑色羊毛高领打底针织衫，细密坑条罗纹，面料在胸部形成自然微张力，袖长及手腕" oninput="updateLivePrompt()" class="w-full bg-[#f8f8fa] border border-neutral-200 rounded-xl px-4 py-2.5 text-xs text-[#0d0c22] focus:bg-white focus:outline-none focus:border-neutral-400">
+            </div>
+
+            <!-- Lower -->
+            <div class="space-y-2">
+              <label class="text-xs font-semibold text-[#0d0c22]">下装 (Bottom Garment)</label>
+              <input id="input-lower" type="text" value="高腰暗灰色重磅羊毛呢A字半身短裙，裙长至大腿中上部，高腰线清晰凸显腰臀比例" oninput="updateLivePrompt()" class="w-full bg-[#f8f8fa] border border-neutral-200 rounded-xl px-4 py-2.5 text-xs text-[#0d0c22] focus:bg-white focus:outline-none focus:border-neutral-400">
+            </div>
+
+            <!-- Hosiery & Shoes Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Hosiery -->
+              <div class="space-y-2">
+                <label class="text-xs font-semibold text-[#0d0c22]">丝袜 / 腿部质感</label>
+                <select id="select-hosiery" onchange="updateLivePrompt()" class="w-full bg-[#f8f8fa] border border-neutral-200 rounded-xl px-3 py-2.5 text-xs text-[#0d0c22] focus:outline-none focus:border-neutral-400 cursor-pointer">
+                  <option value="20D均匀微透黑丝袜，哑光微雾面质感，曲面拉伸处自然透出健康肤色，严禁油腻反光">20D 哑光微透黑丝 (推荐)</option>
+                  <option value="15D超薄薄透黑色丝袜，极细腻质感，膝盖骨节处通透，不要塑料感">15D 超薄通透黑丝</option>
+                  <option value="40D深灰微压力哑光中厚丝袜，重力悬垂，无光泽感">40D 哑光中厚深灰</option>
+                  <option value="裸腿，细腻真实皮肤纹理，自然毛孔与膝关节微色差">自然裸腿 (无丝袜)</option>
+                </select>
+              </div>
+
+              <!-- Shoes -->
+              <div class="space-y-2">
+                <label class="text-xs font-semibold text-[#0d0c22]">鞋履标准</label>
+                <div class="bg-[#f8f8fa] border border-neutral-200 rounded-xl px-3 py-2.5 text-xs text-[#0d0c22] flex items-center justify-between">
+                  <span>尖头细高跟鞋 (8cm细跟)</span>
+                  <span class="text-[10px] bg-neutral-200 px-1.5 py-0.5 rounded font-mono text-neutral-600">工业标准</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Layer 3: 场景、机位与物理真实感 (realistic-phone-photo-prompts) -->
+          <div class="bg-white rounded-2xl p-6 border border-[#f3f3f4] shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-pink-500">Layer 4 & 5 · 手机原相机与受力物理</span>
+              <span class="text-xs text-neutral-400">已集成真实手机质感 Skill</span>
+            </div>
+
+            <!-- Toggles for realistic features -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <label class="flex items-center gap-2.5 p-3 rounded-xl bg-[#f8f8fa] border border-neutral-100 cursor-pointer hover:border-neutral-300 transition">
+                <input id="chk-shadow" type="checkbox" checked onchange="updateLivePrompt()" class="rounded text-pink-600 focus:ring-0">
+                <span class="font-medium text-[#0d0c22]">真实受力接触阴影 (去悬浮)</span>
+              </label>
+
+              <label class="flex items-center gap-2.5 p-3 rounded-xl bg-[#f8f8fa] border border-neutral-100 cursor-pointer hover:border-neutral-300 transition">
+                <input id="chk-lens" type="checkbox" checked onchange="updateLivePrompt()" class="rounded text-pink-600 focus:ring-0">
+                <span class="font-medium text-[#0d0c22]">24-28mm 手机主摄广角与深景深</span>
+              </label>
+
+              <label class="flex items-center gap-2.5 p-3 rounded-xl bg-[#f8f8fa] border border-neutral-100 cursor-pointer hover:border-neutral-300 transition">
+                <input id="chk-skin" type="checkbox" checked onchange="updateLivePrompt()" class="rounded text-pink-600 focus:ring-0">
+                <span class="font-medium text-[#0d0c22]">微孔与关节色差 (去磨皮塑料)</span>
+              </label>
+
+              <label class="flex items-center gap-2.5 p-3 rounded-xl bg-[#f8f8fa] border border-neutral-100 cursor-pointer hover:border-neutral-300 transition">
+                <input id="chk-asym" type="checkbox" checked onchange="updateLivePrompt()" class="rounded text-pink-600 focus:ring-0">
+                <span class="font-medium text-[#0d0c22]">承重腿/放松腿克制微不对称</span>
+              </label>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right 5 Cols: Live Real-time Prompt Card (Sticky) -->
+        <div class="lg:col-span-5 sticky top-24 space-y-4">
+          <div class="bg-white rounded-2xl border border-[#f3f3f4] p-6 shadow-xl space-y-4">
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="font-bold text-xs uppercase tracking-wider text-[#0d0c22]">实时生成提示词 (Live Prompt)</span>
+              </div>
+              <span class="text-[11px] text-[#6e6d7a] font-mono" id="prompt-char-count">480 字</span>
+            </div>
+
+            <!-- Tabs: 中文版 / 英文版 -->
+            <div class="flex items-center gap-2 border-b border-[#f3f3f4] pb-2 text-xs font-semibold">
+              <button class="text-dribbble-pink border-b-2 border-dribbble-pink pb-1">中文版 (GPT Image)</button>
+              <button class="text-[#6e6d7a] hover:text-black pb-1">英文版 (Flux/Midjourney)</button>
+            </div>
+
+            <!-- Prompt Textbox Container -->
+            <div id="live-prompt-box" class="p-4 bg-[#f8f8fa] rounded-xl border border-neutral-200 text-xs leading-relaxed text-[#0d0c22] font-mono h-80 overflow-y-auto whitespace-pre-wrap select-all">
+              <!-- Filled dynamically by JS -->
+            </div>
+
+            <!-- Action buttons -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <button onclick="copyGeneratedPrompt()" class="py-2.5 rounded-full dribbble-pink text-white font-semibold text-xs shadow-md shadow-pink-200 hover:shadow-lg transition flex items-center justify-center gap-1.5">
+                <span>📋 一键复制全文</span>
+              </button>
+              <button onclick="alert('已模拟同步写入本地 Obsidian 知识库 (wiki/synthesis/最新生成卡片.md)！')" class="py-2.5 rounded-full bg-[#0d0c22] text-white font-semibold text-xs hover:bg-neutral-800 transition flex items-center justify-center gap-1.5">
+                <span>💾 同步到 Obsidian</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 3: 双图反推实验室 (Dual-Ref Image Lab) ==================== -->
+    <section id="view-lab" class="hidden space-y-8">
+      
+      <div class="border-b border-[#f3f3f4] pb-6">
+        <h2 class="text-2xl font-bold tracking-tight text-[#0d0c22]">双图镜自拍与视觉解耦反推实验室</h2>
+        <p class="text-xs text-[#6e6d7a] mt-1">拖入一张场景参考图与一张人物底图，Agent 将自动调用 <strong>dual-reference-mirror-selfie</strong> 与 <strong>objective-image-prompt</strong> 进行结构分离与提示词反推。</p>
+      </div>
+
+      <!-- Drag & Drop Slots Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Slot 1: Scene & Pose Reference -->
+        <div class="bg-white rounded-2xl p-6 border-2 border-dashed border-[#e7e7e9] hover:border-pink-400 transition-colors flex flex-col items-center justify-center text-center p-12 cursor-pointer group">
+          <div class="w-14 h-14 rounded-full bg-pink-50 text-dribbble-pink flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            📸
+          </div>
+          <h3 class="font-bold text-sm text-[#0d0c22]">图一：场景与构图参考图 (Reference 1)</h3>
+          <p class="text-xs text-[#6e6d7a] mt-1.5 max-w-xs">提取机位、镜面透视、姿势动作、穿搭款式及环境光照。<br><span class="text-pink-500 font-medium">（原图模特面容与身材将被自动解耦清除）</span></p>
+          <button class="mt-4 px-4 py-2 rounded-full bg-[#f3f3f4] text-xs font-semibold text-[#0d0c22] group-hover:bg-[#0d0c22] group-hover:text-white transition">点击或拖拽上传</button>
+        </div>
+
+        <!-- Slot 2: Character Identity / Face Base -->
+        <div class="bg-white rounded-2xl p-6 border-2 border-dashed border-[#e7e7e9] hover:border-emerald-400 transition-colors flex flex-col items-center justify-center text-center p-12 cursor-pointer group">
+          <div class="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            👤
+          </div>
+          <h3 class="font-bold text-sm text-[#0d0c22]">图二：人物面容底图 (Optional)</h3>
+          <p class="text-xs text-[#6e6d7a] mt-1.5 max-w-xs">提供成年女性的面容、五官比例、发型发色。<br><span class="text-emerald-600 font-medium">若留空，默认自动套用赵凤丽身材基线生成开箱即用 Prompt</span></p>
+          <button class="mt-4 px-4 py-2 rounded-full bg-[#f3f3f4] text-xs font-semibold text-[#0d0c22] group-hover:bg-emerald-600 group-hover:text-white transition">点击上传底图或留空</button>
+        </div>
+
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex justify-center">
+        <button onclick="runMockExtraction()" id="btn-extract" class="dribbble-pink text-white font-semibold text-sm px-8 py-3.5 rounded-full shadow-lg shadow-pink-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2">
+          <span>⚡ 执行智能视觉解耦反推</span>
+        </button>
+      </div>
+
+      <!-- Output Section (Hidden by default, shown after extract) -->
+      <div id="lab-result" class="hidden bg-white rounded-2xl border border-[#f3f3f4] p-8 shadow-xl space-y-6">
+        <div class="flex items-center justify-between border-b border-[#f3f3f4] pb-4">
+          <div class="flex items-center gap-3">
+            <span class="px-2.5 py-1 rounded bg-pink-100 text-dribbble-pink text-xs font-bold uppercase">九段式输出规范</span>
+            <h3 class="font-bold text-base text-[#0d0c22]">反推已完成 · 已自动锁定赵凤丽身材母版</h3>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="switchView('studio')" class="px-4 py-1.5 rounded-full bg-[#f3f3f4] text-xs font-semibold text-[#0d0c22] hover:bg-neutral-200 transition">
+              ⚡ 导入拼装台继续微调
+            </button>
+            <button onclick="alert('已复制反推提示词！')" class="px-4 py-1.5 rounded-full dribbble-pink text-white text-xs font-semibold shadow-sm transition">
+              一键复制
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-[#f8f8fa] p-5 rounded-xl border border-neutral-200 text-xs font-mono leading-relaxed text-[#0d0c22] space-y-3">
+          <p class="text-neutral-500"># 最终生图提示词（九段式独立可用版）</p>
+          <p><strong>【任务定义】</strong> 请以本次上传的人物底图为唯一人物外观依据，保留其中同一位成年女性的面容、发型、肤色和可见身体特征，按照以下构图、姿势、穿搭和场景描述，生成一张真实智能手机拍摄的镜自拍照片。</p>
+          <p><strong>【身材母版】</strong> 人物身材严格采用赵凤丽基准：身高168cm，体重65kg，丰满型自然沙漏身材，自然适中C杯，腰部相对紧实平坦，臀部自然饱满有张力，大腿匀称肉感。保留真实亚洲女性体量，禁止拉腿瘦身、禁止削减臀部体积。</p>
+          <p><strong>【构图与姿势】</strong> 竖构图全身镜前自拍，略微俯视角度。右手持手机置于胸口至鼻尖下方位置，手机顶部边缘精准遮挡嘴唇与下巴，双眼自然直视手机屏幕。承重腿自然站立，非承重腿微曲，重心真实稳定。</p>
+          <p><strong>【穿搭与鞋袜】</strong> 黑色修身高领细针织衫，搭配深灰高腰羊毛A字裙。腿部穿着20D均匀微透哑光黑丝袜，脚穿尖头细高跟鞋（鞋楦修长，8cm细跟，不要粗跟，不要坡跟，不要防水台）。</p>
+          <p><strong>【手机质感与受力】</strong> 普通智能手机原相机24mm主摄，较深景深。高跟鞋与地面接触处产生真实紧密受力接触阴影，离开接触面自然渐变柔化。暗部保留细腻传感器噪点，拒绝磨皮与塑料皮。</p>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    // View Switcher
+    function switchView(viewName) {
+      document.getElementById('view-shots').classList.add('hidden');
+      document.getElementById('view-studio').classList.add('hidden');
+      document.getElementById('view-lab').classList.add('hidden');
+
+      document.getElementById('nav-shots').className = "px-5 py-2 rounded-full text-[#6e6d7a] hover:text-[#0d0c22] transition-all duration-200";
+      document.getElementById('nav-studio').className = "px-5 py-2 rounded-full text-[#6e6d7a] hover:text-[#0d0c22] transition-all duration-200";
+      document.getElementById('nav-lab').className = "px-5 py-2 rounded-full text-[#6e6d7a] hover:text-[#0d0c22] transition-all duration-200";
+
+      if (viewName === 'shots') {
+        document.getElementById('view-shots').classList.remove('hidden');
+        document.getElementById('nav-shots').className = "px-5 py-2 rounded-full bg-white text-[#0d0c22] shadow-sm transition-all duration-200";
+      } else if (viewName === 'studio') {
+        document.getElementById('view-studio').classList.remove('hidden');
+        document.getElementById('nav-studio').className = "px-5 py-2 rounded-full bg-white text-[#0d0c22] shadow-sm transition-all duration-200";
+        updateLivePrompt();
+      } else if (viewName === 'lab') {
+        document.getElementById('view-lab').classList.remove('hidden');
+        document.getElementById('nav-lab').className = "px-5 py-2 rounded-full bg-white text-[#0d0c22] shadow-sm transition-all duration-200";
+      }
+    }
+
+    // Dynamic Live Prompt Generator
+    function updateLivePrompt() {
+      const upper = document.getElementById('input-upper').value;
+      const lower = document.getElementById('input-lower').value;
+      const hosiery = document.getElementById('select-hosiery').value;
+      const shadow = document.getElementById('chk-shadow').checked;
+      const lens = document.getElementById('chk-lens').checked;
+      const skin = document.getElementById('chk-skin').checked;
+      const asym = document.getElementById('chk-asym').checked;
+
+      let promptText = `【画面类型与主体】
+真实生活手机摄影照片，一位年轻亚洲女性（模特赵凤丽，身高168cm，体重65kg），体态自然挺拔，呈现丰满型沙漏身材比例。胸部自然适中C杯不过度丰满，腰部相对紧实平坦，腰臀比清晰；臀部自然饱满健康有张力，大腿匀称肉感，小腿纤细修长。
+
+【服饰与穿搭】
+上装：${upper}。
+下装：${lower}。
+腿部与足部：${hosiery}；脚穿尖头细高跟鞋，鞋楦修长，8cm细跟，不要粗跟，不要坡跟，不要防水台。
+
+【物理受力与环境质感】
+${shadow ? '- 接触受力阴影：鞋跟及足底与地面接触点产生紧密接触硬阴影，离开接触面逐渐向外自然柔化扩散，拒绝悬浮漂浮感。\n' : ''}${lens ? '- 摄影光学：模拟普通智能手机主摄约24-28mm等效焦段，深景深，背景空间细节清晰，不过度虚化。\n' : ''}${skin ? '- 微观肤质：保留细腻真实皮肤纹理与自然微小毛孔，受压关节处呈微小自然色差过渡，全图噪点一致，严禁磨皮与塑料皮。\n' : ''}${asym ? '- 姿态动态：承重腿肌肉保持支撑，放松腿自然微曲，保留克制的骨盆微倾斜与自然生活感。\n' : ''}
+【针对性负面约束】
+不要过度磨皮，不要塑料感，不要拉长腿部，不要瘦身，不要漫画化腰臀比，不要粗跟，不要坡跟，不要防水台，不要油亮丝袜，无商业广告完美布光。`;
+
+      const box = document.getElementById('live-prompt-box');
+      if (box) {
+        box.innerText = promptText;
+        document.getElementById('prompt-char-count').innerText = promptText.length + " 字";
+      }
+    }
+
+    function copyGeneratedPrompt() {
+      const text = document.getElementById('live-prompt-box').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ 已复制完整生图 Prompt 到剪贴板！可以直接粘贴到绘图工具。");
+      });
+    }
+
+    function copyMockPrompt(id) {
+      alert("✅ 已复制卡片 #" + id + " 对应的完整高精度 Prompt！");
+    }
+
+    function loadToStudio(type) {
+      switchView('studio');
+      if (type === 'hotel') {
+        document.getElementById('input-upper').value = "优雅黑色修身长袖针织连衣裙，方领剪裁微露锁骨，面料紧致贴合身形";
+        document.getElementById('input-lower').value = "裙摆过膝处开叉，利落走线，自然垂坠";
+      } else if (type === 'coat') {
+        document.getElementById('input-upper').value = "燕麦色经典双排扣长款羊绒风衣，内搭米白色法式高领真丝衬衫";
+        document.getElementById('input-lower').value = "高腰深咖色羊毛呢短裙，腰带自然系拢";
+      } else if (type === 'silk') {
+        document.getElementById('input-upper').value = "香槟金重磅真丝法式V领衬衫，微解两颗纽扣，衣料光泽柔和流动";
+        document.getElementById('input-lower').value = "高腰黑色醋酸包臀半身裙，裙长至膝上5cm";
+      }
+      updateLivePrompt();
+    }
+
+    function runMockExtraction() {
+      const btn = document.getElementById('btn-extract');
+      btn.innerHTML = "⏳ 正在提取视觉要素并解耦身材母版...";
+      btn.classList.add('opacity-75');
+
+      setTimeout(() => {
+        btn.innerHTML = "⚡ 执行智能视觉解耦反推";
+        btn.classList.remove('opacity-75');
+        document.getElementById('lab-result').classList.remove('hidden');
+        document.getElementById('lab-result').scrollIntoView({ behavior: 'smooth' });
+      }, 900);
+    }
+
+    // Init on load
+    updateLivePrompt();
+  </script>
+</body>
+</html>

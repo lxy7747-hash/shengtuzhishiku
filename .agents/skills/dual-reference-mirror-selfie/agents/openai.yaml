@@ -1,0 +1,3 @@
+interface:
+  display_name: "双图镜自拍复刻器"
+  short_description: "提取镜自拍场景、姿势与穿搭，输出可配合另行上传的人物底图使用的生图提示词"

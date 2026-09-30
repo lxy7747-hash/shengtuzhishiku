@@ -1,0 +1,17 @@
+# Obsidian local data
+.obsidian/workspace.json
+.obsidian/cache/
+.obsidian/plugins/*/data.json
+.claudian/sessions/
+.claude/
+
+# Agent sessions
+.agents/skills/*/sessions/
+
+# OS / temp
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+
+# Large binaries if any (optional, keep images for now)

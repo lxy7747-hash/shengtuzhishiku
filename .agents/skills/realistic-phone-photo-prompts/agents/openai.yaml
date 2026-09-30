@@ -1,0 +1,13 @@
+interface:
+  display_name: 真实感生图提示词
+  short_description: 为手机摄影生图与局部编辑整理自然比例、材质、光影和去 AI 感提示词
+  default_prompt: 使用 $realistic-phone-photo-prompts，为这张图片写一段保持人物比例和构图、增强手机摄影真实感的局部编辑提示词。
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
