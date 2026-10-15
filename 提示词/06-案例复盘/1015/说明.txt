@@ -1,0 +1,1 @@
+Gemini开头的为通过gemini生成的地图，然后再通过GPT改姿势生成ChatGPT开头的图片
